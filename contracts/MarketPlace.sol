@@ -12,8 +12,8 @@ contract MarketPlace is MarketListing {
 
   Counters.Counter private _itemsIds;
 
-  address payable owner;
-  uint256 itemListingPrice = 0.001 ether;
+  address payable public owner;
+  uint256 public itemListingPrice = 0.001 ether;
   
   constructor() {
     owner = payable(msg.sender);

@@ -7,27 +7,30 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "hardhat/console.sol";
 
 contract NFT is ERC721URIStorage {
-    
     using Counters for Counters.Counter;
-
     Counters.Counter private _tokenIds;
 
-    address public contractAddress;
+    address public marketplaceAddress;
 
-    constructor(address marketplaceAddress) ERC721("test tokens", "TTT") {
-        contractAddress = marketplaceAddress;
+    constructor(address _marketplaceAddress)
+        ERC721("Closed Land Tokens", "CLT")
+    {
+        marketplaceAddress = _marketplaceAddress;
     }
 
-    function createToken(string memory tokenURI) public returns(uint) {
-        console.log("This is your token: %s ", tokenURI);
+    event TokenCreated(uint256 newItemId);
+
+    function createToken(string memory tokenURI) public returns (uint256) {
         // increase token id by one to assign to new token
         _tokenIds.increment();
-        uint newItemId = _tokenIds.current();
+        uint256 newItemId = _tokenIds.current();
+        console.log("This is your token: %s ", newItemId);
 
         _mint(msg.sender, newItemId);
         _setTokenURI(newItemId, tokenURI);
-        setApprovalForAll(contractAddress, true);
+        setApprovalForAll(marketplaceAddress, true);
 
+        emit TokenCreated(newItemId);
         return newItemId;
     }
 }
