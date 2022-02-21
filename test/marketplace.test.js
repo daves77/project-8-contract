@@ -1,34 +1,34 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-describe("marketplace basic functionality", () => {
+describe("market basic functionality", () => {
   let nft;
-  let marketplace;
+  let market;
   let nftContractAddress;
   let user1;
   let user2;
 
   beforeEach(async () => {
-    const MarketPlace = await ethers.getContractFactory("MarketPlace");
-    marketplace = await MarketPlace.deploy();
-    await marketplace.deployed();
+    const MarketListing = await ethers.getContractFactory("MarketListing");
+    market = await MarketListing.deploy();
+    await market.deployed();
 
     const NFT = await ethers.getContractFactory("NFT");
-    nft = await NFT.deploy(marketplace.address);
+    nft = await NFT.deploy(market.address);
     await nft.deployed();
 
     nftContractAddress = nft.address;
 
     console.log("NFT Contract Address:", nft.address);
-    console.log("Marketplace Address:", marketplace.address);
+    console.log("Marketplace Address:", market.address);
 
     const users = await ethers.getSigners();
     user1 = users[0];
     user2 = users[1];
   });
 
-  it("nft contract should have the marketplace contract address", async () => {
-    expect(await nft.marketplaceAddress()).to.equal(marketplace.address);
+  it("nft contract should have the market contract address", async () => {
+    expect(await nft.marketAddress()).to.equal(market.address);
   });
 
   it("can create nft token for listing and retrieve tokenURI", async () => {
@@ -46,15 +46,15 @@ describe("marketplace basic functionality", () => {
       .to.emit(nft, "TokenCreated")
       .withArgs(1);
 
-    expect(await nft.tokeenURI(1).to.equal("https://mytokenlocation.com"));
+    expect(await nft.tokenURI(1)).to.equal("https://mytokenlocation.com");
 
     console.log(await nft.tokenURI(1));
   });
 
-  it("can list the item onto the marketplace", async () => {
+  it("can list the item onto the market", async () => {
     console.log("new nft address:", nft.address);
     const userAddress = await user1.getAddress();
-    const listingPrice = await marketplace.listingPrice();
+    const listingPrice = await market.listingPrice();
     const sellingPrice = ethers.utils.parseUnits("3.4", "ether");
 
     await nft.createToken("https://mytokenlocation.com", {
@@ -62,12 +62,12 @@ describe("marketplace basic functionality", () => {
     });
 
     expect(
-      await marketplace.createMarketItem(nft.address, 1, sellingPrice, {
+      await market.createMarketItem(nft.address, 1, sellingPrice, {
         value: listingPrice,
         from: userAddress,
       })
     )
-      .to.emit(marketplace, "MarketItemCreated")
+      .to.emit(market, "MarketItemCreated")
       .withArgs(
         1,
         1,
@@ -77,6 +77,8 @@ describe("marketplace basic functionality", () => {
         ethers.constants.AddressZero,
         false
       );
-    const items = await marketplace.getAllMarketItems();
+    const items = await market.getAllMarketItems();
+
+    // checking that ownership has been transferred to the market
   });
 });

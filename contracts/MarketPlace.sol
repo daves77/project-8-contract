@@ -1,22 +1,26 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
+// didnt inherit from Ownable due to some issues regarding payable
+// might resolve later
+contract MarketPlace {
+    address payable private _owner;
+    uint256 public itemListingPrice = 0.001 ether;
 
-import "@openzeppelin/contracts/utils/Counters.sol";
+    constructor() {
+        _owner = payable(msg.sender);
+    }
 
-import "./MarketListing.sol";
+    function owner() public view virtual returns (address) {
+        return _owner;
+    }
 
+    modifier onlyOwner() {
+        require(owner() == msg.sender, "Ownable: caller is not the owner");
+        _;
+    }
 
-contract MarketPlace is MarketListing {
-  using Counters for Counters.Counter;
-
-  Counters.Counter private _itemsIds;
-
-  address payable public owner;
-  uint256 public itemListingPrice = 0.001 ether;
-  
-  constructor() {
-    owner = payable(msg.sender);
-  }
-
+    function setListingPrice(uint256 _price) external onlyOwner {
+        itemListingPrice = _price;
+    }
 }

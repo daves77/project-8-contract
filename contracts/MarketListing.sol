@@ -5,27 +5,26 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "hardhat/console.sol";
+import "./Marketplace.sol";
 
-contract MarketListing is ReentrancyGuard {
+contract MarketListing is ReentrancyGuard, MarketPlace {
     using Counters for Counters.Counter;
 
-    Counters.Counter private _itemsId;
-
+    Counters.Counter internal _itemsId;
     uint256 public listingPrice = 0.01 ether;
 
     struct MarketItem {
-        // autoincrement of item id to index the items that have
-        // been listed on the marketplace
-        uint256 itemId;
-        uint256 tokenId;
-        uint256 price;
-        address nftContract;
-        address payable seller;
-        address payable owner;
+        uint256 itemId; // keeps track of all items ever listed
+        uint256 tokenId; //should be universal to all ERC721 contracts (notsure)
+        uint256 price; // price users wants to list token at
+        address nftContract; // contract where NFT is minted
+        address payable seller; // person who is listing NFT
+        address payable owner; // empty by default until sold
         bool sold;
     }
 
-    mapping(uint256 => MarketItem) private marketItemId;
+    // keeps track of all items ever listed
+    mapping(uint256 => MarketItem) internal marketItemId;
 
     event MarketItemCreated(
         uint256 indexed itemId,
@@ -42,7 +41,7 @@ contract MarketListing is ReentrancyGuard {
         uint256 _tokenId,
         uint256 _price
     ) public payable nonReentrant {
-        require(_price > 0, "Can't set price to be less than 0");
+        require(_price > 0, "Can't set price > 0");
 
         _itemsId.increment();
         uint256 itemId = _itemsId.current();
@@ -71,18 +70,29 @@ contract MarketListing is ReentrancyGuard {
         );
     }
 
+    /**
+     * @dev Retrieves all items that have been listed on the marketplace
+     */
     function getAllMarketItems() public view returns (MarketItem[] memory) {
         uint256 totalItems = _itemsId.current();
         console.log("total items: %s", totalItems);
         MarketItem[] memory items = new MarketItem[](totalItems);
 
-        for (uint256 i = 0; i < totalItems; i++) {
+        for (uint256 i = 1; i < totalItems; i++) {
             //not sure if this will work
-            uint256 currentId = marketItemId[i + 1].itemId;
+            uint256 currentId = marketItemId[i].itemId;
             MarketItem storage currentItem = marketItemId[currentId];
             items[i] = currentItem;
         }
 
         return items;
+    }
+
+    function closeMarketItem(address _nftContract, uint256 _itemId)
+        public
+        payable
+        nonReentrant
+    {
+        // tbc
     }
 }
