@@ -1,3 +1,5 @@
+//had to delete import references to Marketplace.sol for compilation to be successful
+
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
@@ -5,9 +7,8 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "hardhat/console.sol";
-import "./Marketplace.sol";
 
-contract MarketListing is ReentrancyGuard, MarketPlace {
+contract MarketListing is ReentrancyGuard {
     using Counters for Counters.Counter;
 
     Counters.Counter internal _itemsId;
