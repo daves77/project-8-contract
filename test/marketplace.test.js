@@ -28,7 +28,7 @@ describe("market basic functionality", () => {
   });
 
   it("nft contract should have the market contract address", async () => {
-    expect(await nft.marketAddress()).to.equal(market.address);
+    expect(await nft.marketplaceAddress()).to.equal(market.address);
   });
 
   it("can create nft token for listing and retrieve tokenURI", async () => {
@@ -54,7 +54,7 @@ describe("market basic functionality", () => {
   it("can list the item onto the market", async () => {
     console.log("new nft address:", nft.address);
     const userAddress = await user1.getAddress();
-    const listingPrice = await market.listingPrice();
+    const listingPrice = await market.itemListingPrice();
     const sellingPrice = ethers.utils.parseUnits("3.4", "ether");
 
     await nft.createToken("https://mytokenlocation.com", {

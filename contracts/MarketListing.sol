@@ -11,7 +11,6 @@ contract MarketListing is ReentrancyGuard, MarketPlace {
     using Counters for Counters.Counter;
 
     Counters.Counter internal _itemsId;
-    uint256 public listingPrice = 0.01 ether;
 
     struct MarketItem {
         uint256 itemId; // keeps track of all items ever listed

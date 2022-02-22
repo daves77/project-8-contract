@@ -26,6 +26,7 @@ contract NFT is ERC721URIStorage {
         uint256 newItemId = _tokenIds.current();
         console.log("This is your token: %s ", newItemId);
 
+        //openzepplin functions
         _mint(msg.sender, newItemId);
         _setTokenURI(newItemId, tokenURI);
         setApprovalForAll(marketplaceAddress, true);
