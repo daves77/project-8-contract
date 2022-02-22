@@ -77,7 +77,7 @@ describe("market basic functionality", () => {
         ethers.constants.AddressZero,
         false
       );
-    const items = await market.getAllMarketItems();
+    // const items = await market.getAllMarketItems();
 
     // checking that ownership has been transferred to the market
   });
