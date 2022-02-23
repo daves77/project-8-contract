@@ -3,7 +3,7 @@ pragma solidity ^0.8.7;
 
 // didnt inherit from Ownable due to some issues regarding payable
 // might resolve later
-contract MarketPlace {
+contract Marketplace {
     address payable private _owner;
     uint256 public itemListingPrice = 0.001 ether;
 
