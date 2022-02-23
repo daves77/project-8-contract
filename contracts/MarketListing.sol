@@ -13,7 +13,6 @@ contract MarketListing is ReentrancyGuard, Marketplace {
     using Counters for Counters.Counter;
 
     Counters.Counter internal _itemsId;
-    uint256 public listingPrice = 0.01 ether;
 
     struct MarketItem {
         uint256 itemId; // keeps track of all items ever listed
@@ -36,6 +35,13 @@ contract MarketListing is ReentrancyGuard, Marketplace {
         address seller,
         address owner,
         bool sold
+    );
+
+    event MarketItemSold(
+        uint256 indexed itemId,
+        uint256 indexed tokenId,
+        uint256 price,
+        address indexed nftContract
     );
 
     function createMarketItem(
@@ -80,9 +86,9 @@ contract MarketListing is ReentrancyGuard, Marketplace {
         console.log("total items: %s", totalItems);
         MarketItem[] memory items = new MarketItem[](totalItems);
 
-        for (uint256 i = 1; i < totalItems; i++) {
+        for (uint256 i = 0; i < totalItems; i++) {
             //not sure if this will work
-            uint256 currentId = marketItemId[i].itemId;
+            uint256 currentId = marketItemId[i + 1].itemId;
             MarketItem storage currentItem = marketItemId[currentId];
             items[i] = currentItem;
         }
@@ -90,11 +96,31 @@ contract MarketListing is ReentrancyGuard, Marketplace {
         return items;
     }
 
-    function closeMarketItem(address _nftContract, uint256 _itemId)
+    /**
+     * @dev Creates a direct sale if the seller has an open listing
+     */
+    function createMarketItemSale(address _nftContract, uint256 _itemId)
         public
         payable
         nonReentrant
     {
-        // tbc
+        MarketItem storage soldItem = marketItemId[_itemId];
+        uint256 price = soldItem.price;
+        uint256 tokenId = soldItem.tokenId;
+
+        //ensure that buyer sent enough eth to buy NFT
+        require(msg.value == price, "Not enough ETH for puchase");
+
+        // transfer eth from buyer to seller
+        soldItem.seller.transfer(msg.value);
+
+        // transfer ownership to buyer
+        IERC721(_nftContract).transferFrom(address(this), msg.sender, tokenId);
+
+        // update blockchain
+        soldItem.owner = payable(msg.sender);
+        soldItem.sold = true;
+        payable(_owner).transfer(itemListingPrice);
+        emit MarketItemSold(_itemId, tokenId, price, _nftContract);
     }
 }
