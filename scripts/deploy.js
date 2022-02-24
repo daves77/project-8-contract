@@ -1,6 +1,7 @@
 /* 
 1. ref syntax for deploying multiple contracts from stackoverflow (ref a below)
-2. even tho we haf ethers installed... ethers obtained from hardhat is diff... getContractFactory and getSigners is a method in ethers from hardhat... not e orig ethers... 
+2. even tho we haf ethers installed... ethers obtained from hardhat is diff... getContractFactory and getSigners is a method in ethers from hardhat... not e orig ethers.js
+3. to deploy on local test blockchain, follow instructions in ref b below  
 Refs
 a. How to deploy multiple smart contracts using hardhat-deploy: https://stackoverflow.com/questions/69812460/how-to-deploy-multiple-smart-contracts-using-hardhat-deploy
 b. Deploying your contracts: https://hardhat.org/guides/deploying.html#deploying-your-contracts

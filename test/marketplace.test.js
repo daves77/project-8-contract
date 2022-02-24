@@ -25,6 +25,7 @@ describe("market basic functionality", () => {
     const users = await ethers.getSigners();
     user1 = users[0];
     user2 = users[1];
+    console.log(await user2.getAddress(), "user 2 address");
   });
 
   it("nft contract should have the market contract address", async () => {
@@ -80,5 +81,35 @@ describe("market basic functionality", () => {
     // const items = await market.getAllMarketItems();
 
     // checking that ownership has been transferred to the market
+  });
+
+  it("should be able to sell nft", async () => {
+    const sellerAddress = await user1.getAddress();
+    const buyerAddress = await user2.getAddress();
+    const listingPrice = await market.itemListingPrice();
+    const sellingPrice = ethers.utils.parseUnits("3.4", "ether");
+
+    await nft.createToken("https://mytokenlocation.com", {
+      from: sellerAddress,
+    });
+    await market.createMarketItem(nft.address, 1, sellingPrice, {
+      value: listingPrice,
+      from: sellerAddress,
+    });
+
+    const items = await market.getAllMarketItems();
+    console.log(items);
+
+    expect(
+      await market.connect(user2).createMarketItemSale(nft.address, 1, {
+        value: sellingPrice,
+        from: buyerAddress,
+      })
+    ).to.emit(market, "MarketItemSold");
+
+    console.log(await market.getAllMarketItems());
+
+    // ensure that actual item has transfered ownership
+    expect(await nft.ownerOf(1)).to.equal(buyerAddress);
   });
 });
