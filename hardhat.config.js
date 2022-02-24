@@ -20,10 +20,14 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 
 /**
  * @type import('hardhat/config').HardhatUserConfig
- */
+added hardhat chainId config cos was getting error in frontend (https://hardhat.org/metamask-issue.html)
+*/
 module.exports = {
   solidity: "0.8.7",
   networks: {
+    hardhat: {
+      chainId: 1337,
+    },
     ropsten: {
       url: process.env.ROPSTEN_URL || "",
       accounts:
