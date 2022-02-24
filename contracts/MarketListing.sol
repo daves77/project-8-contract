@@ -7,8 +7,9 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "hardhat/console.sol";
+import "./Marketplace.sol";
 
-contract MarketListing is ReentrancyGuard {
+contract MarketListing is ReentrancyGuard, Marketplace {
     using Counters for Counters.Counter;
 
     Counters.Counter internal _itemsId;
