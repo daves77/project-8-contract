@@ -28,11 +28,11 @@ describe("market basic functionality", () => {
     console.log(await user2.getAddress(), "user 2 address");
   });
 
-  it("nft contract should have the market contract address", async () => {
+  xit("nft contract should have the market contract address", async () => {
     expect(await nft.marketplaceAddress()).to.equal(market.address);
   });
 
-  it("can create nft token for listing and retrieve tokenURI", async () => {
+  xit("can create nft token for listing and retrieve tokenURI", async () => {
     const [user] = await ethers.getSigners();
     console.log(
       "user 1 address:",
@@ -52,7 +52,7 @@ describe("market basic functionality", () => {
     console.log(await nft.tokenURI(1));
   });
 
-  it("can list the item onto the market", async () => {
+  xit("can list the item onto the market", async () => {
     console.log("new nft address:", nft.address);
     const userAddress = await user1.getAddress();
     const listingPrice = await market.itemListingPrice();
@@ -76,7 +76,7 @@ describe("market basic functionality", () => {
         nftContractAddress,
         userAddress,
         ethers.constants.AddressZero,
-        false
+        "available"
       );
     // const items = await market.getAllMarketItems();
 
@@ -92,11 +92,11 @@ describe("market basic functionality", () => {
     await nft.createToken("https://mytokenlocation.com", {
       from: sellerAddress,
     });
+
     await market.createMarketItem(nft.address, 1, sellingPrice, {
       value: listingPrice,
       from: sellerAddress,
     });
-
     const items = await market.getAllMarketItems();
     console.log(items);
 
@@ -111,5 +111,41 @@ describe("market basic functionality", () => {
 
     // ensure that actual item has transfered ownership
     expect(await nft.ownerOf(1)).to.equal(buyerAddress);
+  });
+
+  xit("should be able to create a trade offer and trade", async () => {
+    const offerer = await user1.getAddress();
+    const offeree = await user2.getAddress();
+    const listingPrice = await market.itemListingPrice();
+    const sellingPrice = ethers.utils.parseUnits("3.4", "ether");
+    console.log(offerer, offeree);
+
+    await nft.createToken("https://mytokenlocation.com", {
+      from: offerer,
+    });
+    await nft.connect(user2).createToken("https://mytokenlocation.com", {
+      from: offeree,
+    });
+    await market.createMarketItem(nft.address, 1, sellingPrice, {
+      value: listingPrice,
+      from: offerer,
+    });
+    await market.connect(user2).createMarketItem(nft.address, 2, sellingPrice, {
+      value: listingPrice,
+      from: offeree,
+    });
+
+    const items = await nft.ownerOf(1);
+    const items2 = await nft.ownerOf(2);
+    console.log(items, "owner");
+    console.log(items2, "owner");
+
+    expect(
+      await market
+        .connect(user1)
+        .createItemTradeOffer([1], [2], offeree, nftContractAddress, {
+          from: offerer,
+        })
+    ).to.emit(market, "MarketTradeCreated");
   });
 });

@@ -13,6 +13,7 @@ contract MarketListing is ReentrancyGuard, Marketplace {
     using Counters for Counters.Counter;
 
     Counters.Counter internal _itemsId;
+    Counters.Counter internal _tradeId;
 
     struct MarketItem {
         uint256 itemId; // keeps track of all items ever listed
@@ -21,11 +22,21 @@ contract MarketListing is ReentrancyGuard, Marketplace {
         address nftContract; // contract where NFT is minted
         address payable seller; // person who is listing NFT
         address payable owner; // empty by default until sold
-        bool sold;
+        string status;
+    }
+
+    struct MarketTradeOffer {
+        uint256 tradeId;
+        uint256[] offererItemsId;
+        uint256[] offereeItemsId;
+        address offerer; // person making the offer
+        address offeree; // person receiving the offer
+        bool closed;
     }
 
     // keeps track of all items ever listed
     mapping(uint256 => MarketItem) internal marketItemId;
+    mapping(uint256 => MarketTradeOffer) internal marketTradeId;
 
     event MarketItemCreated(
         uint256 indexed itemId,
@@ -34,7 +45,7 @@ contract MarketListing is ReentrancyGuard, Marketplace {
         address indexed nftContract,
         address seller,
         address owner,
-        bool sold
+        string status
     );
 
     event MarketItemSold(
@@ -42,6 +53,15 @@ contract MarketListing is ReentrancyGuard, Marketplace {
         uint256 indexed tokenId,
         uint256 price,
         address indexed nftContract
+    );
+
+    event MarketTradeCreated(
+        uint256 tradeId,
+        uint256[] offererItemsId,
+        uint256[] offereeItemsId,
+        address offerer,
+        address offeree,
+        bool closed
     );
 
     function createMarketItem(
@@ -61,7 +81,7 @@ contract MarketListing is ReentrancyGuard, Marketplace {
             _nftContract,
             payable(msg.sender),
             payable(address(0)),
-            false
+            "available"
         );
 
         // transfer ownership from seller to contract
@@ -74,7 +94,7 @@ contract MarketListing is ReentrancyGuard, Marketplace {
             _nftContract,
             payable(msg.sender),
             address(0),
-            false
+            "available"
         );
     }
 
@@ -110,6 +130,10 @@ contract MarketListing is ReentrancyGuard, Marketplace {
 
         //ensure that buyer sent enough eth to buy NFT
         require(msg.value == price, "Not enough ETH for puchase");
+        require(
+            keccak256(bytes(soldItem.status)) == keccak256(bytes("available")),
+            "Item is no longer available"
+        );
 
         // transfer eth from buyer to seller
         soldItem.seller.transfer(msg.value);
@@ -119,8 +143,46 @@ contract MarketListing is ReentrancyGuard, Marketplace {
 
         // update blockchain
         soldItem.owner = payable(msg.sender);
-        soldItem.sold = true;
+        soldItem.status = "sold";
         payable(_owner).transfer(itemListingPrice);
         emit MarketItemSold(_itemId, tokenId, price, _nftContract);
     }
+
+    function createItemTradeOffer(
+        uint256[] memory _offererItemId,
+        uint256[] memory _offereeItemId,
+        address _offeree,
+        address _nftContract
+    ) public nonReentrant {
+        for (uint256 i = 0; i < _offererItemId.length; i++) {
+            MarketItem memory item = marketItemId[_offererItemId[i]];
+            require(item.seller == msg.sender, "offerer not owner of these");
+        }
+        for (uint256 i = 0; i < _offereeItemId.length; i++) {
+            MarketItem memory item = marketItemId[_offereeItemId[i]];
+            require(item.seller == _offeree, "offeree not owner of these");
+        }
+        _tradeId.increment();
+        uint256 tradeId = _tradeId.current();
+        console.log("%s tradeId", tradeId);
+        marketTradeId[tradeId] = MarketTradeOffer(
+            tradeId,
+            _offererItemId,
+            _offereeItemId,
+            msg.sender,
+            _offeree,
+            false
+        );
+
+        emit MarketTradeCreated(
+            tradeId,
+            _offererItemId,
+            _offereeItemId,
+            msg.sender,
+            _offeree,
+            false
+        );
+    }
+
+    function approveTradeOffer() public nonReentrant {}
 }
