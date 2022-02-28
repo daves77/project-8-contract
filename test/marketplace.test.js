@@ -83,7 +83,7 @@ describe("market basic functionality", () => {
     // checking that ownership has been transferred to the market
   });
 
-  it("should be able to sell nft", async () => {
+  xit("should be able to sell nft", async () => {
     const sellerAddress = await user1.getAddress();
     const buyerAddress = await user2.getAddress();
     const listingPrice = await market.itemListingPrice();
@@ -113,7 +113,7 @@ describe("market basic functionality", () => {
     expect(await nft.ownerOf(1)).to.equal(buyerAddress);
   });
 
-  xit("should be able to create a trade offer and trade", async () => {
+  it("should be able to create a trade offer and trade", async () => {
     const offerer = await user1.getAddress();
     const offeree = await user2.getAddress();
     const listingPrice = await market.itemListingPrice();
@@ -139,6 +139,9 @@ describe("market basic functionality", () => {
     const items2 = await nft.ownerOf(2);
     console.log(items, "owner");
     console.log(items2, "owner");
+
+    const x = await market.getAllMarketItems();
+    console.log(x);
 
     expect(
       await market

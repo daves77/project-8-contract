@@ -151,8 +151,7 @@ contract MarketListing is ReentrancyGuard, Marketplace {
     function createItemTradeOffer(
         uint256[] memory _offererItemId,
         uint256[] memory _offereeItemId,
-        address _offeree,
-        address _nftContract
+        address _offeree
     ) public nonReentrant {
         for (uint256 i = 0; i < _offererItemId.length; i++) {
             MarketItem memory item = marketItemId[_offererItemId[i]];
@@ -184,5 +183,7 @@ contract MarketListing is ReentrancyGuard, Marketplace {
         );
     }
 
-    function approveTradeOffer() public nonReentrant {}
+    function approveTradeOffer() public nonReentrant {
+
+    }
 }
