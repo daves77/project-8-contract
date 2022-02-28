@@ -105,7 +105,6 @@ contract MarketListing is ReentrancyGuard, Marketplace {
         uint256 totalItems = _itemsId.current();
         console.log("total items: %s", totalItems);
         MarketItem[] memory items = new MarketItem[](totalItems);
-
         for (uint256 i = 0; i < totalItems; i++) {
             //not sure if this will work
             uint256 currentId = marketItemId[i + 1].itemId;
@@ -144,7 +143,7 @@ contract MarketListing is ReentrancyGuard, Marketplace {
         // update blockchain
         soldItem.owner = payable(msg.sender);
         soldItem.status = "sold";
-        payable(_owner).transfer(itemListingPrice);
+        // payable(_owner).transfer(itemListingPrice);
         emit MarketItemSold(_itemId, tokenId, price, _nftContract);
     }
 
@@ -183,7 +182,5 @@ contract MarketListing is ReentrancyGuard, Marketplace {
         );
     }
 
-    function approveTradeOffer() public nonReentrant {
-
-    }
+    function approveTradeOffer() public nonReentrant {}
 }
