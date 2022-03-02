@@ -75,8 +75,7 @@ describe("market basic functionality", () => {
         sellingPrice,
         nftContractAddress,
         userAddress,
-        ethers.constants.AddressZero,
-        false
+        "available"
       );
     // const items = await market.getAllMarketItems();
 
@@ -92,18 +91,17 @@ describe("market basic functionality", () => {
     await nft.createToken("https://mytokenlocation.com", {
       from: sellerAddress,
     });
+
     await market.createMarketItem(nft.address, 1, sellingPrice, {
       value: listingPrice,
       from: sellerAddress,
     });
-
     const items = await market.getAllMarketItems();
     console.log(items);
 
     expect(
       await market.connect(user2).createMarketItemSale(nft.address, 1, {
         value: sellingPrice,
-        from: buyerAddress,
       })
     ).to.emit(market, "MarketItemSold");
 
@@ -111,5 +109,45 @@ describe("market basic functionality", () => {
 
     // ensure that actual item has transfered ownership
     expect(await nft.ownerOf(1)).to.equal(buyerAddress);
+  });
+
+  it("should be able to create a trade offer and trade", async () => {
+    const offerer = await user1.getAddress();
+    const offeree = await user2.getAddress();
+    const listingPrice = await market.itemListingPrice();
+    const sellingPrice = ethers.utils.parseUnits("3.4", "ether");
+    console.log(offerer, offeree);
+
+    await nft.createToken("https://mytokenlocation.com", {
+      from: offerer,
+    });
+    await nft.createToken("https://mytokenlocation.com", {
+      from: offerer,
+    });
+    await nft.connect(user2).createToken("https://mytokenlocation.com", {
+      from: offeree,
+    });
+    await market.createMarketItem(nft.address, 1, sellingPrice, {
+      value: listingPrice,
+      from: offerer,
+    });
+    await market.createMarketItem(nft.address, 2, sellingPrice, {
+      value: listingPrice,
+      from: offerer,
+    });
+    await market.connect(user2).createMarketItem(nft.address, 3, sellingPrice, {
+      value: listingPrice,
+      from: offeree,
+    });
+
+    expect(
+      await market.connect(user1).createItemTradeOffer([1, 2], [3], offeree, {
+        from: offerer,
+      })
+    ).to.emit(market, "MarketTradeCreated");
+
+    await market.connect(user2).approveTradeOffer(1, nftContractAddress);
+    const offers = await market.connect(user2).getUserTradeOffers(offeree);
+    console.log(offers);
   });
 });
