@@ -27,7 +27,7 @@ The technology stack used for our project are as follow:
 
 - Frontend: [Link](https://github.com/daves77/bootcamp-project8-react)
 - Backend: [Link](https://github.com/bwcee/bootcamp-project8_bckend)
-- Backend: [Link](https://github.com/daves77/project-8-contract)
+- Smart Contract & Blockchain Development: [Link](https://github.com/daves77/project-8-contract)
 
 ## Usage
 
